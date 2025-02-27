@@ -1,5 +1,12 @@
 {
   "name": "unwrap",
+  "version": "0.0.1",
+  "author": {
+    "name": "Denys Vuika",
+    "email": "denys.vuika@gmail.com",
+    "url": "https://denys.dev"
+  },
+  "license": "Apache-2.0",
   "module": "index.ts",
   "type": "module",
   "private": true,
