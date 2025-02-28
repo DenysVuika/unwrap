@@ -19,19 +19,20 @@ const APP_DATA_DIR = '.unwrap';
 
 export function init() {
   const currentDirectory = process.cwd();
+  const appDataPath = `${currentDirectory}/${APP_DATA_DIR}`;
 
-  if (fs.existsSync(`${currentDirectory}/${APP_DATA_DIR}`)) {
+  if (fs.existsSync(appDataPath)) {
     console.log('Project already initialised');
     return;
   }
 
-  fs.mkdirSync(`${currentDirectory}/${APP_DATA_DIR}`);
+  fs.mkdirSync(appDataPath);
   updateGitignore(currentDirectory);
 
   // create the .unwrap.json config file in the .unwrap directory
   const config = generateConfig();
   fs.writeFileSync(
-    `${currentDirectory}/${APP_DATA_DIR}/.unwrap.json`,
+    `${appDataPath}/.unwrap.json`,
     JSON.stringify(config, null, 2)
   );
 

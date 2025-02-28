@@ -17,7 +17,29 @@ import { join } from 'node:path';
 import { readdir, exists } from 'node:fs/promises';
 import { Eta } from 'eta';
 
-async function pickLicenseTemplate() {
+async function getCustomLicenseTemplates() {
+  const templatesRoot = join(process.cwd(), '.unwrap', 'templates', 'license');
+  const dirExists = await exists(templatesRoot);
+
+  if (!dirExists) {
+    return [];
+  }
+
+  const folders = await readdir(templatesRoot, { withFileTypes: true });
+  const templateChoices = folders
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => {
+      return {
+        name: entry.name,
+        value: `${templatesRoot}/${entry.name}`,
+        description: 'Custom license template',
+      };
+    });
+
+  return templateChoices;
+}
+
+async function pickLicenseTemplate(): Promise<string> {
   const templatesRoot = join(import.meta.dir, 'templates', 'license');
   const folders = await readdir(templatesRoot, { withFileTypes: true });
   const templateChoices = folders
@@ -25,14 +47,22 @@ async function pickLicenseTemplate() {
     .map((entry) => {
       return {
         name: entry.name,
-        value: entry.name,
+        value: `${templatesRoot}/${entry.name}`,
         description: 'License template',
       };
     });
 
-  const answer = await select({
+  const customTemplates = await getCustomLicenseTemplates();
+  const choices: any[] = [...templateChoices];
+
+  if (customTemplates.length > 0) {
+    choices.push(new Separator());
+    choices.push(...customTemplates);
+  }
+
+  const answer = await select<string>({
     message: 'Select a license template',
-    choices: templateChoices,
+    choices,
   });
 
   return answer;
@@ -55,14 +85,12 @@ export async function license(argv: any) {
   });
 
   const licenseTemplate = await pickLicenseTemplate();
-  const templateRoot = join(
-    import.meta.dir,
-    'templates',
-    'license',
-    licenseTemplate
-  );
+  if (!licenseTemplate) {
+    console.log('No license template selected');
+    return;
+  }
 
-  const eta = new Eta({ views: templateRoot });
+  const eta = new Eta({ views: licenseTemplate });
   const outputContent = eta.render('./LICENSE', { name, year });
 
   if (dryRun) {
