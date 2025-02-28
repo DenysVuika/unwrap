@@ -32,6 +32,7 @@ const handleUnknownCommand = (args: string[]) => {
 };
 
 const parser = yargs(hideBin(process.argv))
+  .scriptName('unwrap')
   .command<{}>(
     'init',
     'Initialise [unwrap] project in the current directory',
