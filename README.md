@@ -1,5 +1,17 @@
 # unwrap
 
+Running:
+
+```bash
+# Bun
+bunx @templ8/unwrap --help
+
+# Node
+npx @templ8/unwrap --help
+```
+
+## Development
+
 To install dependencies:
 
 ```bash
@@ -12,4 +24,10 @@ To run:
 bun run index.ts
 ```
 
-This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## Linking
+
+```bash
+bun link
+```
+
+Now you can run `unwrap` from anywhere.
