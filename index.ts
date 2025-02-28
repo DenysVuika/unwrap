@@ -31,7 +31,7 @@ const handleUnknownCommand = (args: string[]) => {
   // Add your logic here, e.g., forwarding to another handler
 };
 
-const argv = yargs(hideBin(process.argv))
+const parser = yargs(hideBin(process.argv))
   .command<{}>(
     'init',
     'Initialise [unwrap] project in the current directory',
@@ -57,9 +57,18 @@ const argv = yargs(hideBin(process.argv))
   .demandCommand(1, 'You need at least one command before moving on')
   .strict(false)
   .help()
-  .parseSync() as CLIArgs;
+  .wrap(null); // Format help output properly
+
+// Parse the arguments synchronously
+const argv = parser.parseSync() as CLIArgs;
+
+// Extract the first argument (command name)
+const command = argv._[0];
+
+// List of known commands
+const knownCommands = ['init', 'note'];
 
 // Handle unknown commands explicitly
-if (argv._.length > 0) {
+if (command && !knownCommands.includes(command)) {
   handleUnknownCommand(argv._);
 }
