@@ -1,7 +1,7 @@
-import { version } from '../package.json';
-const APP_DATA_DIR = '.unwrap';
-
 import fs from 'fs';
+import { version } from '../package.json';
+
+const APP_DATA_DIR = '.unwrap';
 
 export function init() {
   const currentDirectory = process.cwd();

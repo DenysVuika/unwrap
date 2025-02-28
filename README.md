@@ -10,6 +10,12 @@ bunx @templ8/unwrap --help
 npx @templ8/unwrap --help
 ```
 
+## Commands
+
+- `init` - Initialize a new project.
+- `help` - Display help information.
+- `license` - Generate a license file.
+
 ## Development
 
 To install dependencies:
@@ -24,7 +30,7 @@ To run:
 bun run index.ts
 ```
 
-## Linking
+### Linking
 
 ```bash
 bun link

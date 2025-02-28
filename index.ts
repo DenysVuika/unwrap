@@ -17,6 +17,7 @@ limitations under the License.
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { init } from './src/init';
+import { license } from './src/license';
 
 // Define types for known commands
 interface CLIArgs {
@@ -25,51 +26,66 @@ interface CLIArgs {
   [key: string]: unknown; // Allow additional unknown properties
 }
 
+// List of known commands
+const knownCommands = ['init', 'note', 'license'];
+
 // Function to handle unknown commands
 const handleUnknownCommand = (args: string[]) => {
   console.log('Unknown command:', args.join(' '));
   // Add your logic here, e.g., forwarding to another handler
 };
 
-const parser = yargs(hideBin(process.argv))
-  .scriptName('unwrap')
-  .command<{}>(
-    'init',
-    'Initialise [unwrap] project in the current directory',
-    (yargs) => {},
-    (argv) => {
-      init();
-    }
-  )
-  .command<{ text: string }>(
-    'note <text>',
-    'Creates a new note',
-    (yargs) => {
-      yargs.positional('text', {
-        describe: 'The content of the note',
-        type: 'string',
-        demandOption: true,
-      });
-    },
-    (argv) => {
-      console.log('Creating a new note with content:', argv.text);
-    }
-  )
-  .demandCommand(1, 'You need at least one command before moving on')
-  .strict(false)
-  .help()
-  .wrap(null); // Format help output properly
+async function main() {
+  const parser = yargs(hideBin(process.argv))
+    .scriptName('unwrap')
+    .command<{}>(
+      'init',
+      'Initialise [unwrap] project in the current directory',
+      (yargs) => {},
+      (argv) => {
+        init();
+      }
+    )
+    .command<{}>(
+      'license',
+      'Add a LICENSE file to your project',
+      (yargs) => {},
+      (argv) => {
+        license(argv);
+      }
+    )
+    .command<{ text: string }>(
+      'note <text>',
+      'Creates a new note',
+      (yargs) => {
+        yargs.positional('text', {
+          describe: 'The content of the note',
+          type: 'string',
+          demandOption: true,
+        });
+      },
+      (argv) => {
+        console.log('Creating a new note with content:', argv.text);
+      }
+    )
+    .demandCommand(1, 'You need at least one command before moving on')
+    .strict(false)
+    .help()
+    .wrap(null); // Format help output properly
 
-// Parse the arguments synchronously
-const argv = parser.parseSync() as CLIArgs;
+  // Parse the arguments synchronously
+  const argv = parser.parseSync() as CLIArgs;
 
-// Extract the first argument (command name)
-const command = argv._[0];
+  // Extract the first argument (command name)
+  const command = argv._[0];
 
-// List of known commands
-const knownCommands = ['init', 'note'];
-
-// Handle unknown commands explicitly
-if (command && !knownCommands.includes(command)) {
-  handleUnknownCommand(argv._);
+  // Handle unknown commands explicitly
+  if (command && !knownCommands.includes(command)) {
+    handleUnknownCommand(argv._);
+  }
 }
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
