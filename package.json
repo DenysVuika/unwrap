@@ -1,5 +1,6 @@
 {
   "name": "@giftbox/unwrap",
+  "description": "A lightweight tool designed to quickly create and customize small templates for various applications",
   "version": "0.0.1",
   "author": {
     "name": "Denys Vuika",
@@ -9,7 +10,7 @@
   "license": "Apache-2.0",
   "module": "index.ts",
   "type": "module",
-  "private": true,
+  "private": false,
   "bin": {
     "unwrap": "index.ts"
   },
