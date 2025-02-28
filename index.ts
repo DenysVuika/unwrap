@@ -13,5 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
 
-console.log("Hello via Bun!");
+yargs(hideBin(process.argv))
+  .command(
+    'note <text>',
+    'Creates a new note',
+    (yargs) => {
+      yargs.positional('text', {
+        describe: 'The content of the note',
+        type: 'string',
+      })
+    },
+    (argv) => {
+      console.log('Creating a new note with content:', argv.text)
+    }
+  )
+  .demandCommand(1, 'You need at least one command before moving on')
+  .help()
+  .parse()
