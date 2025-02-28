@@ -15,8 +15,17 @@ limitations under the License.
 */
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { init } from './src/init';
 
 yargs(hideBin(process.argv))
+  .command(
+    'init',
+    'Initialise [unwrap] project in the current directory',
+    (yargs) => {},
+    (argv) => {
+      init();
+    }
+  )
   .command(
     'note <text>',
     'Creates a new note',
