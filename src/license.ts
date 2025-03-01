@@ -3,7 +3,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@ import { input, number, select, Separator } from '@inquirer/prompts';
 import { join } from 'node:path';
 import { readdir, exists } from 'node:fs/promises';
 import { Eta } from 'eta';
+import { EmptyTemplateConfig, type TemplateConfig } from './types';
 
 async function getCustomLicenseTemplates() {
   const templatesRoot = join(process.cwd(), '.unwrap', 'templates', 'license');
@@ -69,6 +70,8 @@ async function pickLicenseTemplate(): Promise<string> {
 }
 
 export async function license(argv: any) {
+  const { dryRun } = argv;
+
   const outputFile = join(process.cwd(), 'LICENSE');
   const licenseExists = await exists(outputFile);
   if (licenseExists) {
@@ -76,28 +79,53 @@ export async function license(argv: any) {
     return;
   }
 
-  const dryRun = argv._.includes('--dry-run');
-
-  const licenseTemplate = await pickLicenseTemplate();
-  if (!licenseTemplate) {
+  const templateRoot = await pickLicenseTemplate();
+  if (!templateRoot) {
     console.log('No license template selected');
     return;
   }
 
-  const name = await input({ message: 'Enter your name', required: true });
-  const year = await number({
-    message: 'Enter the year',
-    default: new Date().getFullYear(),
-  });
+  const config = await getTemplateConfig(templateRoot);
+  const data: any = await collectInputValues(config);
 
-  const eta = new Eta({ views: licenseTemplate });
-  const outputContent = eta.render('./LICENSE', { name, year });
+  const eta = new Eta({ views: templateRoot });
+  const outputContent = eta.render('LICENSE', data);
 
   if (dryRun) {
     console.log(outputContent);
   } else {
-    // write the license file
     console.log('Writing LICENSE file');
     await Bun.write(outputFile, outputContent);
   }
+}
+
+async function collectInputValues(config: TemplateConfig) {
+  const inputValues: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(config.context.input)) {
+    const { type, description, required } = value;
+
+    if (type === 'string') {
+      inputValues[key] = await input({ message: description, required });
+    } else if (type === 'number') {
+      inputValues[key] = await number({ message: description, required });
+    }
+  }
+
+  return inputValues;
+}
+
+async function getTemplateConfig(
+  templateRoot: string
+): Promise<TemplateConfig> {
+  const configPath = join(templateRoot, 'config.json');
+  const configFile = Bun.file(configPath);
+  const configExists = await configFile.exists();
+
+  if (!configExists) {
+    return EmptyTemplateConfig;
+  }
+
+  const configContent = await configFile.text();
+  return JSON.parse(configContent);
 }

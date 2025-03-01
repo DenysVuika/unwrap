@@ -1,0 +1,16 @@
+{
+  "context": {
+    "input": {
+      "name": {
+        "type": "string",
+        "description": "Name of the user",
+        "required": true
+      },
+      "year": {
+        "type": "number",
+        "description": "License year",
+        "required": true
+      }
+    }
+  }
+}
