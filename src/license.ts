@@ -12,14 +12,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { input, number, select, Separator } from '@inquirer/prompts';
-import { join, relative } from 'node:path';
+import { select, Separator } from '@inquirer/prompts';
+import { join } from 'node:path';
 import { readdir, exists } from 'node:fs/promises';
 import { Eta } from 'eta';
-import { EmptyTemplateConfig, type TemplateConfig } from './types';
+import {
+  collectInputValues,
+  generateFiles,
+  getTemplateConfig,
+  validateFiles,
+} from './gen';
 
-async function getCustomTemplates() {
-  const templatesRoot = join(process.cwd(), '.unwrap', 'templates', 'license');
+async function getCustomTemplates(key: string) {
+  if (!key) {
+    return [];
+  }
+
+  const templatesRoot = join(process.cwd(), '.unwrap', 'templates', key);
   const dirExists = await exists(templatesRoot);
 
   if (!dirExists) {
@@ -41,8 +50,12 @@ async function getCustomTemplates() {
   return templateChoices;
 }
 
-async function pickTemplate(): Promise<string> {
-  const templatesRoot = join(import.meta.dir, 'templates', 'license');
+async function pickTemplate(key: string): Promise<string> {
+  if (!key) {
+    return '';
+  }
+
+  const templatesRoot = join(import.meta.dir, 'templates', key);
   const folders = await readdir(templatesRoot, { withFileTypes: true });
   const templateChoices = folders
     .filter((entry) => entry.isDirectory())
@@ -54,7 +67,7 @@ async function pickTemplate(): Promise<string> {
       };
     });
 
-  const customTemplates = await getCustomTemplates();
+  const customTemplates = await getCustomTemplates(key);
   const choices: any[] = [...templateChoices];
 
   if (customTemplates.length > 0) {
@@ -73,7 +86,7 @@ async function pickTemplate(): Promise<string> {
 export async function license(argv: any) {
   const { dryRun } = argv;
 
-  const templateRoot = await pickTemplate();
+  const templateRoot = await pickTemplate('license');
   if (!templateRoot) {
     console.log('No template selected');
     return;
@@ -96,75 +109,4 @@ export async function license(argv: any) {
   const eta = new Eta({ views: templateRoot });
 
   await generateFiles(config, eta, data, dryRun);
-}
-
-async function collectInputValues(config: TemplateConfig) {
-  const inputValues: Record<string, any> = {};
-
-  for (const [key, value] of Object.entries(config.context.input)) {
-    const { type, description, required } = value;
-
-    if (type === 'string') {
-      inputValues[key] = await input({ message: description, required });
-    } else if (type === 'number') {
-      inputValues[key] = await number({ message: description, required });
-    }
-  }
-
-  return inputValues;
-}
-
-async function getTemplateConfig(
-  templateRoot: string
-): Promise<TemplateConfig> {
-  const configPath = join(templateRoot, 'config.json');
-  const configFile = Bun.file(configPath);
-  const configExists = await configFile.exists();
-
-  if (!configExists) {
-    return EmptyTemplateConfig;
-  }
-
-  const configContent = await configFile.text();
-  return JSON.parse(configContent);
-}
-
-async function validateFiles(config: TemplateConfig) {
-  const currentDir = process.cwd();
-
-  for (const file of config.files) {
-    // ensure the files are not already existing
-    const fileExists = await Bun.file(join(currentDir, file.path)).exists();
-    if (fileExists) {
-      console.log(`File already exists: ${file.path}`);
-      return false;
-    }
-  }
-
-  return true;
-}
-
-async function generateFiles(
-  config: TemplateConfig,
-  eta: Eta,
-  data?: any,
-  dryRun?: boolean
-) {
-  const currentDir = process.cwd();
-  const files = config.files || [];
-
-  for (const file of files) {
-    const outputContent = eta.render(file.template, data);
-    const outputPath = join(currentDir, file.path);
-    const relativePath = relative(currentDir, outputPath);
-
-    console.log(`Writing file: ${relativePath}`);
-
-    if (dryRun) {
-      console.log(outputContent);
-      continue;
-    }
-
-    await Bun.write(outputPath, outputContent, { createPath: true });
-  }
 }
