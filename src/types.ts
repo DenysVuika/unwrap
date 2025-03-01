@@ -13,9 +13,15 @@ limitations under the License.
 */
 
 export interface TemplateConfig {
+  files: TemplateFile[];
   context: {
     input: TemplateInput;
   };
+}
+
+export interface TemplateFile {
+  path: string;
+  template: string;
 }
 
 export interface TemplateInput {
@@ -31,6 +37,7 @@ export interface TemplateInputValue {
 export type InputValueType = 'string' | 'number';
 
 export const EmptyTemplateConfig: TemplateConfig = {
+  files: [],
   context: {
     input: {},
   },

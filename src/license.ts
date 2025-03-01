@@ -13,12 +13,12 @@ limitations under the License.
 */
 
 import { input, number, select, Separator } from '@inquirer/prompts';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { readdir, exists } from 'node:fs/promises';
 import { Eta } from 'eta';
 import { EmptyTemplateConfig, type TemplateConfig } from './types';
 
-async function getCustomLicenseTemplates() {
+async function getCustomTemplates() {
   const templatesRoot = join(process.cwd(), '.unwrap', 'templates', 'license');
   const dirExists = await exists(templatesRoot);
 
@@ -33,14 +33,15 @@ async function getCustomLicenseTemplates() {
       return {
         name: entry.name,
         value: `${templatesRoot}/${entry.name}`,
-        description: 'Custom license template',
+        // TODO: get description from the config file
+        description: 'Custom template',
       };
     });
 
   return templateChoices;
 }
 
-async function pickLicenseTemplate(): Promise<string> {
+async function pickTemplate(): Promise<string> {
   const templatesRoot = join(import.meta.dir, 'templates', 'license');
   const folders = await readdir(templatesRoot, { withFileTypes: true });
   const templateChoices = folders
@@ -49,11 +50,11 @@ async function pickLicenseTemplate(): Promise<string> {
       return {
         name: entry.name,
         value: `${templatesRoot}/${entry.name}`,
-        description: 'License template',
+        description: 'Default template',
       };
     });
 
-  const customTemplates = await getCustomLicenseTemplates();
+  const customTemplates = await getCustomTemplates();
   const choices: any[] = [...templateChoices];
 
   if (customTemplates.length > 0) {
@@ -62,7 +63,7 @@ async function pickLicenseTemplate(): Promise<string> {
   }
 
   const answer = await select<string>({
-    message: 'Select a license template',
+    message: 'Pick a template',
     choices,
   });
 
@@ -72,31 +73,29 @@ async function pickLicenseTemplate(): Promise<string> {
 export async function license(argv: any) {
   const { dryRun } = argv;
 
-  const outputFile = join(process.cwd(), 'LICENSE');
-  const licenseExists = await exists(outputFile);
-  if (licenseExists) {
-    console.log('LICENSE file already exists');
-    return;
-  }
-
-  const templateRoot = await pickLicenseTemplate();
+  const templateRoot = await pickTemplate();
   if (!templateRoot) {
-    console.log('No license template selected');
+    console.log('No template selected');
     return;
   }
 
   const config = await getTemplateConfig(templateRoot);
-  const data: any = await collectInputValues(config);
 
-  const eta = new Eta({ views: templateRoot });
-  const outputContent = eta.render('LICENSE', data);
-
-  if (dryRun) {
-    console.log(outputContent);
-  } else {
-    console.log('Writing LICENSE file');
-    await Bun.write(outputFile, outputContent);
+  if (!config) {
+    console.log('No config found');
+    return;
   }
+
+  const validFiles = await validateFiles(config);
+  if (!validFiles) {
+    console.log('Operation aborted');
+    return;
+  }
+
+  const data: any = await collectInputValues(config);
+  const eta = new Eta({ views: templateRoot });
+
+  await generateFiles(config, eta, data, dryRun);
 }
 
 async function collectInputValues(config: TemplateConfig) {
@@ -128,4 +127,44 @@ async function getTemplateConfig(
 
   const configContent = await configFile.text();
   return JSON.parse(configContent);
+}
+
+async function validateFiles(config: TemplateConfig) {
+  const currentDir = process.cwd();
+
+  for (const file of config.files) {
+    // ensure the files are not already existing
+    const fileExists = await Bun.file(join(currentDir, file.path)).exists();
+    if (fileExists) {
+      console.log(`File already exists: ${file.path}`);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+async function generateFiles(
+  config: TemplateConfig,
+  eta: Eta,
+  data?: any,
+  dryRun?: boolean
+) {
+  const currentDir = process.cwd();
+  const files = config.files || [];
+
+  for (const file of files) {
+    const outputContent = eta.render(file.template, data);
+    const outputPath = join(currentDir, file.path);
+    const relativePath = relative(currentDir, outputPath);
+
+    console.log(`Writing file: ${relativePath}`);
+
+    if (dryRun) {
+      console.log(outputContent);
+      continue;
+    }
+
+    await Bun.write(outputPath, outputContent, { createPath: true });
+  }
 }

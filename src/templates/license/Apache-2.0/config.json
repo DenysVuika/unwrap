@@ -1,4 +1,5 @@
 {
+  "files": [{ "path": "LICENSE", "template": "LICENSE.eta" }],
   "context": {
     "input": {
       "name": {
