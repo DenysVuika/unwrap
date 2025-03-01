@@ -78,17 +78,17 @@ export async function license(argv: any) {
 
   const dryRun = argv._.includes('--dry-run');
 
-  const name = await input({ message: 'Enter your name', required: true });
-  const year = await number({
-    message: 'Enter the year',
-    default: new Date().getFullYear(),
-  });
-
   const licenseTemplate = await pickLicenseTemplate();
   if (!licenseTemplate) {
     console.log('No license template selected');
     return;
   }
+
+  const name = await input({ message: 'Enter your name', required: true });
+  const year = await number({
+    message: 'Enter the year',
+    default: new Date().getFullYear(),
+  });
 
   const eta = new Eta({ views: licenseTemplate });
   const outputContent = eta.render('./LICENSE', { name, year });
