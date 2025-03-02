@@ -12,6 +12,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+export interface CLIArgs {
+  _: string[]; // Captures unknown commands
+  dryRun?: boolean;
+  [key: string]: unknown; // Allow additional unknown properties
+}
+
 export interface TemplateConfig {
   files: TemplateFile[];
   context: {

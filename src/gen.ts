@@ -1,6 +1,6 @@
 import { input, number } from '@inquirer/prompts';
 import { join, relative } from 'node:path';
-import { EmptyTemplateConfig, type TemplateConfig } from './types';
+import { type TemplateConfig } from './types';
 import type { Eta } from 'eta';
 
 /**
@@ -27,13 +27,13 @@ export async function collectInputValues(config: TemplateConfig) {
  */
 export async function getTemplateConfig(
   templateRoot: string
-): Promise<TemplateConfig> {
+): Promise<TemplateConfig | undefined> {
   const configPath = join(templateRoot, 'config.json');
   const configFile = Bun.file(configPath);
   const configExists = await configFile.exists();
 
   if (!configExists) {
-    return EmptyTemplateConfig;
+    return undefined;
   }
 
   const configContent = await configFile.text();
@@ -43,12 +43,18 @@ export async function getTemplateConfig(
 /**
  * Returns true if the files in the template configuration do not already exist in the current directory.
  */
-export async function validateFiles(config: TemplateConfig) {
+export async function validateFiles(
+  config: TemplateConfig,
+  eta: Eta,
+  data: any
+) {
   const currentDir = process.cwd();
 
   for (const file of config.files) {
-    // ensure the files are not already existing
-    const fileExists = await Bun.file(join(currentDir, file.path)).exists();
+    const filePath = eta.renderString(file.path, data);
+    const outputPath = join(currentDir, filePath);
+    const fileExists = await Bun.file(outputPath).exists();
+
     if (fileExists) {
       console.log(`File already exists: ${file.path}`);
       return false;

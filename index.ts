@@ -17,25 +17,13 @@ limitations under the License.
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { init } from './src/commands/init';
-import { license } from './src/commands/license';
-import { ng } from './src/commands/ng';
-
-// Define types for known commands
-interface CLIArgs {
-  _: string[]; // Captures unknown commands
-  text?: string;
-  [key: string]: unknown; // Allow additional unknown properties
-}
+import { runCommand } from './src/run';
+import type { CLIArgs } from './src/types';
 
 // List of known commands
-const knownCommands = ['init', 'note', 'license', 'ng'];
+const knownCommands = ['init'];
 
-// Function to handle unknown commands
-const handleUnknownCommand = (args: string[]) => {
-  console.log('Unknown command:', args.join(' '));
-  // Add your logic here, e.g., forwarding to another handler
-};
-
+// TODO: dynamically build commands based on the templates directory
 async function main() {
   const parser = yargs(hideBin(process.argv))
     .scriptName('unwrap')
@@ -47,50 +35,24 @@ async function main() {
         init();
       }
     )
-    .command<{}>(
-      'license',
-      'Add a LICENSE file to your project',
-      (yargs) => {},
-      (argv) => {
-        license(argv);
-      }
-    )
-    .command<{}>(
-      'ng',
-      'Create Angular elements',
-      (yargs) => {},
-      (argv) => {
-        ng(argv);
-      }
-    )
-    .command<{ text: string }>(
-      'note <text>',
-      'Creates a new note',
-      (yargs) => {
-        yargs.positional('text', {
-          describe: 'The content of the note',
-          type: 'string',
-          demandOption: true,
-        });
-      },
-      (argv) => {
-        console.log('Creating a new note with content:', argv.text);
-      }
-    )
+    // .command<{}>(
+    //   'license',
+    //   'Add a LICENSE file to your project',
+    //   (yargs) => {},
+    //   (argv) => {
+    //     license(argv);
+    //   }
+    // )
     .demandCommand(1, 'You need at least one command before moving on')
     .strict(false)
     .help()
     .wrap(null); // Format help output properly
 
-  // Parse the arguments synchronously
   const argv = parser.parseSync() as CLIArgs;
-
-  // Extract the first argument (command name)
   const command = argv._[0];
 
-  // Handle unknown commands explicitly
   if (command && !knownCommands.includes(command)) {
-    handleUnknownCommand(argv._);
+    runCommand(command, argv);
   }
 }
 

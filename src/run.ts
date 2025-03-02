@@ -1,18 +1,4 @@
-/*
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-import { select, Separator } from '@inquirer/prompts';
+import { Separator, select } from '@inquirer/prompts';
 import { join } from 'node:path';
 import { readdir, exists } from 'node:fs/promises';
 import { Eta } from 'eta';
@@ -21,7 +7,9 @@ import {
   generateFiles,
   getTemplateConfig,
   validateFiles,
-} from '../gen';
+} from './gen';
+import { toKebabCase } from './utils';
+import type { CLIArgs } from './types';
 
 async function getCustomTemplates(key: string) {
   if (!key) {
@@ -55,7 +43,11 @@ async function pickTemplate(key: string): Promise<string> {
     return '';
   }
 
-  const templatesRoot = join(import.meta.dir, '..', 'templates', key);
+  const templatesRoot = join(import.meta.dir, 'templates', key);
+  if (!(await exists(templatesRoot))) {
+    return '';
+  }
+
   const folders = await readdir(templatesRoot, { withFileTypes: true });
   const templateChoices = folders
     .filter((entry) => entry.isDirectory())
@@ -83,30 +75,36 @@ async function pickTemplate(key: string): Promise<string> {
   return answer;
 }
 
-export async function license(argv: any) {
+export async function runCommand(cmd: string, argv: CLIArgs) {
+  console.log(`Running command... ${cmd}`);
+  console.log(`Arguments... ${JSON.stringify(argv, null, 2)}`);
+
   const { dryRun } = argv;
 
-  const templateRoot = await pickTemplate('license');
+  const templateRoot = await pickTemplate(cmd);
   if (!templateRoot) {
-    console.log('No template selected');
+    console.log(`No template found for '${cmd}'`);
     return;
   }
 
   const config = await getTemplateConfig(templateRoot);
 
   if (!config) {
-    console.log('No config found');
+    console.log(
+      'Error: Incorrect template configuration for the selected template'
+    );
     return;
   }
 
-  const validFiles = await validateFiles(config);
+  const eta = new Eta({ views: templateRoot });
+  let data: any = await collectInputValues(config);
+  data = { ...data, toKebabCase };
+
+  const validFiles = await validateFiles(config, eta, data);
   if (!validFiles) {
     console.log('Operation aborted');
     return;
   }
-
-  const data: any = await collectInputValues(config);
-  const eta = new Eta({ views: templateRoot });
 
   await generateFiles(config, eta, data, dryRun);
 }
