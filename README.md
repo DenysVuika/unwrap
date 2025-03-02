@@ -8,6 +8,10 @@ bunx @templ8/unwrap --help
 
 # Node
 npx @templ8/unwrap --help
+
+# Global install
+bun install -g @templ8/unwrap
+unwrap --help
 ```
 
 ## Commands
