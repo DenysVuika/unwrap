@@ -19,6 +19,9 @@ unwrap --help
 - `init` - Initialize a new project.
 - `help` - Display help information.
 - `license` - Generate a license file.
+  - `--dry-run` - Test the command and see the output.
+- `ng` - Generate an Angular element.
+  - `--dry-run` - Test the command and see the output.
 
 ## Templates
 
