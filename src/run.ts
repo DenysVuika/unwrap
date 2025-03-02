@@ -9,7 +9,7 @@ import {
   validateFiles,
 } from './gen';
 import { toKebabCase } from './utils';
-import type { CLIArgs } from './types';
+import type { CLIArgs, TemplateInfo } from './types';
 
 async function getCustomTemplates(key: string) {
   if (!key) {
@@ -34,6 +34,44 @@ async function getCustomTemplates(key: string) {
         description: 'Custom template',
       };
     });
+
+  return templateChoices;
+}
+
+/**
+ * Lists available template commands
+ * @returns List of available template info
+ */
+export async function listTemplateCommands(): Promise<TemplateInfo[]> {
+  const templatesRoot = join(import.meta.dir, 'templates');
+  const folders = await readdir(templatesRoot, { withFileTypes: true });
+  const templateChoices = await Promise.all(
+    folders
+      .filter((entry) => entry.isDirectory())
+      .map(async (entry) => {
+        const configPath = join(templatesRoot, entry.name, 'template.json');
+        const configFile = Bun.file(configPath);
+        const configExists = await configFile.exists();
+        let description = 'Default command';
+
+        if (configExists) {
+          const configContent = await configFile.text();
+          try {
+            const config = JSON.parse(configContent);
+            if (config.description) {
+              description = config.description;
+            }
+          } catch (error) {
+            console.error(`Error parsing config for ${entry.name}:`, error);
+          }
+        }
+
+        return {
+          name: entry.name,
+          description,
+        };
+      })
+  );
 
   return templateChoices;
 }

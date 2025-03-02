@@ -18,6 +18,11 @@ export interface CLIArgs {
   [key: string]: unknown; // Allow additional unknown properties
 }
 
+export interface TemplateInfo {
+  name: string;
+  description: string;
+}
+
 export interface TemplateConfig {
   files: TemplateFile[];
   context: {

@@ -17,13 +17,12 @@ limitations under the License.
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { init } from './src/commands/init';
-import { runCommand } from './src/run';
+import { runCommand, listTemplateCommands } from './src/run';
 import type { CLIArgs } from './src/types';
 
 // List of known commands
 const knownCommands = ['init'];
 
-// TODO: dynamically build commands based on the templates directory
 async function main() {
   const parser = yargs(hideBin(process.argv))
     .scriptName('unwrap')
@@ -35,18 +34,24 @@ async function main() {
         init();
       }
     )
-    // .command<{}>(
-    //   'license',
-    //   'Add a LICENSE file to your project',
-    //   (yargs) => {},
-    //   (argv) => {
-    //     license(argv);
-    //   }
-    // )
     .demandCommand(1, 'You need at least one command before moving on')
     .strict(false)
     .help()
     .wrap(null); // Format help output properly
+
+  const commands = await listTemplateCommands();
+  for (const { name, description } of commands) {
+    parser.command(
+      name,
+      description,
+      (yargs) => {},
+      (argv) => {
+        runCommand(name, argv as CLIArgs);
+      }
+    );
+
+    knownCommands.push(name);
+  }
 
   const argv = parser.parseSync() as CLIArgs;
   const command = argv._[0];
