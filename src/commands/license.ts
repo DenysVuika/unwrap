@@ -21,7 +21,7 @@ import {
   generateFiles,
   getTemplateConfig,
   validateFiles,
-} from './gen';
+} from '../gen';
 
 async function getCustomTemplates(key: string) {
   if (!key) {
@@ -55,7 +55,7 @@ async function pickTemplate(key: string): Promise<string> {
     return '';
   }
 
-  const templatesRoot = join(import.meta.dir, 'templates', key);
+  const templatesRoot = join(import.meta.dir, '..', 'templates', key);
   const folders = await readdir(templatesRoot, { withFileTypes: true });
   const templateChoices = folders
     .filter((entry) => entry.isDirectory())

@@ -16,8 +16,9 @@ limitations under the License.
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { init } from './src/init';
-import { license } from './src/license';
+import { init } from './src/commands/init';
+import { license } from './src/commands/license';
+import { ng } from './src/commands/ng';
 
 // Define types for known commands
 interface CLIArgs {
@@ -27,7 +28,7 @@ interface CLIArgs {
 }
 
 // List of known commands
-const knownCommands = ['init', 'note', 'license'];
+const knownCommands = ['init', 'note', 'license', 'ng'];
 
 // Function to handle unknown commands
 const handleUnknownCommand = (args: string[]) => {
@@ -52,6 +53,14 @@ async function main() {
       (yargs) => {},
       (argv) => {
         license(argv);
+      }
+    )
+    .command<{}>(
+      'ng',
+      'Create Angular elements',
+      (yargs) => {},
+      (argv) => {
+        ng(argv);
       }
     )
     .command<{ text: string }>(

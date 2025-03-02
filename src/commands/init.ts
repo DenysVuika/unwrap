@@ -13,7 +13,7 @@ limitations under the License.
 */
 
 import fs from 'node:fs';
-import { version } from '../package.json';
+import { version } from '../../package.json';
 
 const APP_DATA_DIR = '.unwrap';
 

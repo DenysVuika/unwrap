@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "<%= it.toKebabCase(it.serviceName) %>.service.ts",
+      "template": "service.ts.eta"
+    },
+    {
+      "path": "<%= it.toKebabCase(it.serviceName) %>.service.spec.ts",
+      "template": "service.spec.ts.eta"
+    }
+  ],
+  "context": {
+    "input": {
+      "serviceName": {
+        "type": "string",
+        "description": "Service name (without the word 'Service')",
+        "required": true
+      }
+    }
+  }
+}

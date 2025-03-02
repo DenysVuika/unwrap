@@ -1,0 +1,15 @@
+import { TestBed } from '@angular/core/testing';
+import { <%= it.serviceName %>Service } from './<%= it.toKebabCase(it.serviceName) %>.service';
+
+describe('<%= it.serviceName %>Service', () => {
+    let service: <%= it.serviceName %>Service;
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(<%= it.serviceName %>Service);
+    });
+
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
+});

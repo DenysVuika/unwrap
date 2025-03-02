@@ -72,7 +72,8 @@ export async function generateFiles(
 
   for (const file of files) {
     const outputContent = eta.render(file.template, data);
-    const outputPath = join(currentDir, file.path);
+    const filePath = eta.renderString(file.path, data);
+    const outputPath = join(currentDir, filePath);
     const relativePath = relative(currentDir, outputPath);
 
     console.log(`Writing file: ${relativePath}`);
