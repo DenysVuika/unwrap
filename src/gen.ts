@@ -23,24 +23,6 @@ export async function collectInputValues(config: TemplateConfig) {
 }
 
 /**
- * Returns the template configuration for a given template root directory.
- */
-export async function getTemplateConfig(
-  templateRoot: string
-): Promise<TemplateConfig | undefined> {
-  const configPath = join(templateRoot, 'config.json');
-  const configFile = Bun.file(configPath);
-  const configExists = await configFile.exists();
-
-  if (!configExists) {
-    return undefined;
-  }
-
-  const configContent = await configFile.text();
-  return JSON.parse(configContent);
-}
-
-/**
  * Returns true if the files in the template configuration do not already exist in the current directory.
  */
 export async function validateFiles(

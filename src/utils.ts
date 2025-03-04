@@ -22,3 +22,20 @@ export function toKebabCase(str: string): string {
       .toLowerCase();
   }
 }
+
+export async function loadConfig<T>(path: string): Promise<T | undefined> {
+  const configFile = Bun.file(path);
+  const configExists = await configFile.exists();
+
+  if (!configExists) {
+    return undefined;
+  }
+
+  try {
+    const configContent = await configFile.text();
+    return JSON.parse(configContent);
+  } catch (error: any) {
+    console.error(`Error parsing config: ${error.message}`);
+    return undefined;
+  }
+}

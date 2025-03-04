@@ -2,14 +2,9 @@ import { Separator, select } from '@inquirer/prompts';
 import { join } from 'node:path';
 import { readdir, exists } from 'node:fs/promises';
 import { Eta } from 'eta';
-import {
-  collectInputValues,
-  generateFiles,
-  getTemplateConfig,
-  validateFiles,
-} from './gen';
-import { toKebabCase } from './utils';
-import type { CLIArgs, TemplateInfo } from './types';
+import { collectInputValues, generateFiles, validateFiles } from './gen';
+import { loadConfig, toKebabCase } from './utils';
+import type { CLIArgs, TemplateConfig, CommandConfig } from './types';
 
 async function getCustomTemplates(key: string) {
   if (!key) {
@@ -42,7 +37,7 @@ async function getCustomTemplates(key: string) {
  * Lists available template commands
  * @returns List of available template info
  */
-export async function listTemplateCommands(): Promise<TemplateInfo[]> {
+export async function listTemplateCommands(): Promise<CommandConfig[]> {
   const templatesRoot = join(import.meta.dir, 'templates');
   const folders = await readdir(templatesRoot, { withFileTypes: true });
   const templateChoices = await Promise.all(
@@ -50,21 +45,8 @@ export async function listTemplateCommands(): Promise<TemplateInfo[]> {
       .filter((entry) => entry.isDirectory())
       .map(async (entry) => {
         const configPath = join(templatesRoot, entry.name, 'template.json');
-        const configFile = Bun.file(configPath);
-        const configExists = await configFile.exists();
-        let description = 'Default command';
-
-        if (configExists) {
-          const configContent = await configFile.text();
-          try {
-            const config = JSON.parse(configContent);
-            if (config.description) {
-              description = config.description;
-            }
-          } catch (error) {
-            console.error(`Error parsing config for ${entry.name}:`, error);
-          }
-        }
+        const config = await loadConfig<CommandConfig>(configPath);
+        const description = config?.description || 'Default command';
 
         return {
           name: entry.name,
@@ -87,15 +69,21 @@ async function pickTemplate(key: string): Promise<string> {
   }
 
   const folders = await readdir(templatesRoot, { withFileTypes: true });
-  const templateChoices = folders
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => {
-      return {
-        name: entry.name,
-        value: `${templatesRoot}/${entry.name}`,
-        description: 'Default template',
-      };
-    });
+  const templateChoices = await Promise.all(
+    folders
+      .filter((entry) => entry.isDirectory())
+      .map(async (entry) => {
+        const configPath = join(templatesRoot, entry.name, 'config.json');
+        const config = await loadConfig<TemplateConfig>(configPath);
+        const description = config?.description || 'Default template';
+
+        return {
+          name: entry.name,
+          value: `${templatesRoot}/${entry.name}`,
+          description,
+        };
+      })
+  );
 
   const customTemplates = await getCustomTemplates(key);
   const choices: any[] = [...templateChoices];
@@ -125,7 +113,8 @@ export async function runCommand(cmd: string, argv: CLIArgs) {
     return;
   }
 
-  const config = await getTemplateConfig(templateRoot);
+  const configPath = join(templateRoot, 'config.json');
+  const config = await loadConfig<TemplateConfig>(configPath);
 
   if (!config) {
     console.log(
