@@ -114,8 +114,8 @@ async function pickTemplate(key: string): Promise<string> {
 }
 
 export async function runCommand(cmd: string, argv: CLIArgs) {
-  console.log(`Running command... ${cmd}`);
-  console.log(`Arguments... ${JSON.stringify(argv, null, 2)}`);
+  // console.log(`Running command... ${cmd}`);
+  // console.log(`Arguments... ${JSON.stringify(argv, null, 2)}`);
 
   const { dryRun } = argv;
 

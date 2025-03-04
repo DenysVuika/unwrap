@@ -1,4 +1,5 @@
 {
+  "description": "Create Angular Service",
   "files": [
     {
       "path": "<%= it.toKebabCase(it.serviceName) %>.service.ts",

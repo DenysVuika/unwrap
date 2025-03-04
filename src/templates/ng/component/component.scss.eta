@@ -1,0 +1,3 @@
+app-<%= it.toKebabCase(it.componentName) %> {
+    display: block;
+}

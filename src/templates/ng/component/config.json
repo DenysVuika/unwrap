@@ -1,0 +1,30 @@
+{
+  "description": "Create Angular Component",
+  "files": [
+    {
+      "path": "<%= it.toKebabCase(it.componentName) %>/<%= it.toKebabCase(it.componentName) %>.component.ts",
+      "template": "component.ts.eta"
+    },
+    {
+      "path": "<%= it.toKebabCase(it.componentName) %>/<%= it.toKebabCase(it.componentName) %>.component.html",
+      "template": "component.html.eta"
+    },
+    {
+      "path": "<%= it.toKebabCase(it.componentName) %>/<%= it.toKebabCase(it.componentName) %>.component.scss",
+      "template": "component.scss.eta"
+    },
+    {
+      "path": "<%= it.toKebabCase(it.componentName) %>/<%= it.toKebabCase(it.componentName) %>.component.spec.ts",
+      "template": "component.spec.ts.eta"
+    }
+  ],
+  "context": {
+    "input": {
+      "componentName": {
+        "type": "string",
+        "description": "Component name (without the word 'Component')",
+        "required": true
+      }
+    }
+  }
+}

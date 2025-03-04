@@ -1,0 +1,14 @@
+<%
+    const typeName = it.componentName + 'Component';
+    const componentName = it.toKebabCase(it.componentName);
+%>
+import { Component } from '@angular/core';
+
+@Component({
+    selector: 'app-<%= componentName %>',
+    standalone: true,
+    templateUrl: './<%= componentName %>.component.html',
+    styleUrls: ['./<%= componentName %>.component.scss']
+})
+export class <%= typeName %> {
+}

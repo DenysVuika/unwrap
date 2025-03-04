@@ -48,7 +48,7 @@ unwrap license --dry-run
 
 Generates one of the following Angular elements:
 
-- [ ] Component
+- [x] Component (Standalone)
 - [ ] Directive
 - [ ] Module
 - [ ] Pipe

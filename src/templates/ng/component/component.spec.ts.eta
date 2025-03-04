@@ -1,0 +1,24 @@
+<%
+    const typeName = it.componentName + 'Component';
+    const fileName = it.toKebabCase(it.componentName) + '.component';
+%>
+import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { <%= typeName %> } from './<%= fileName %>';
+
+describe('<%= typeName %>', () => {
+    let component: <%= typeName %>;
+    let fixture: ComponentFixture<<%= typeName %>>;
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            imports: [ <%= typeName %> ]
+        });
+        fixture = TestBed.createComponent(<%= typeName %>);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
+});
