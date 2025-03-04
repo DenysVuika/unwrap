@@ -1,0 +1,22 @@
+<%
+    const typeName = it.name + 'Pipe';
+    const fileName = it.toKebabCase(it.name) + '.pipe';
+%>
+
+import { TestBed } from '@angular/core/testing';
+import { <%= typeName %> } from './<%= fileName %>';
+
+describe('<%= typeName %>', () => {
+    let pipe: <%= typeName %>;
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            imports: [ <%= typeName %> ]
+        });
+        pipe = TestBed.inject(<%= typeName %>);
+    });
+
+    it('should create an instance', () => {
+        expect(pipe).toBeTruthy();
+    });
+});

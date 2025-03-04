@@ -1,0 +1,15 @@
+<%
+    const typeName = it.name + 'Pipe';
+    const pipeName = it.toKebabCase(it.name);
+%>
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: '<%= pipeName %>',
+  standalone: true
+})
+export class <%= typeName %> implements PipeTransform {
+  transform(value: any, ...args: any[]): any {
+    return value;
+  }
+}

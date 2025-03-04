@@ -51,7 +51,7 @@ Generates one of the following Angular elements:
 - [x] Component (Standalone)
 - [ ] Directive
 - [ ] Module
-- [ ] Pipe
+- [x] Pipe
 - [x] Service
 
 **Example:**
