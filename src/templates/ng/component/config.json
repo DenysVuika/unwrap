@@ -2,25 +2,25 @@
   "description": "Create Angular Component",
   "files": [
     {
-      "path": "<%= it.toKebabCase(it.componentName) %>/<%= it.toKebabCase(it.componentName) %>.component.ts",
+      "path": "<%= it.toKebabCase(it.name) %>/<%= it.toKebabCase(it.name) %>.component.ts",
       "template": "component.ts.eta"
     },
     {
-      "path": "<%= it.toKebabCase(it.componentName) %>/<%= it.toKebabCase(it.componentName) %>.component.html",
+      "path": "<%= it.toKebabCase(it.name) %>/<%= it.toKebabCase(it.name) %>.component.html",
       "template": "component.html.eta"
     },
     {
-      "path": "<%= it.toKebabCase(it.componentName) %>/<%= it.toKebabCase(it.componentName) %>.component.scss",
+      "path": "<%= it.toKebabCase(it.name) %>/<%= it.toKebabCase(it.name) %>.component.scss",
       "template": "component.scss.eta"
     },
     {
-      "path": "<%= it.toKebabCase(it.componentName) %>/<%= it.toKebabCase(it.componentName) %>.component.spec.ts",
+      "path": "<%= it.toKebabCase(it.name) %>/<%= it.toKebabCase(it.name) %>.component.spec.ts",
       "template": "component.spec.ts.eta"
     }
   ],
   "context": {
     "input": {
-      "componentName": {
+      "name": {
         "type": "string",
         "description": "Component name (without the word 'Component')",
         "required": true

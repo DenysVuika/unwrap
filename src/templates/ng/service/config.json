@@ -2,17 +2,17 @@
   "description": "Create Angular Service",
   "files": [
     {
-      "path": "<%= it.toKebabCase(it.serviceName) %>.service.ts",
+      "path": "<%= it.toKebabCase(it.name) %>.service.ts",
       "template": "service.ts.eta"
     },
     {
-      "path": "<%= it.toKebabCase(it.serviceName) %>.service.spec.ts",
+      "path": "<%= it.toKebabCase(it.name) %>.service.spec.ts",
       "template": "service.spec.ts.eta"
     }
   ],
   "context": {
     "input": {
-      "serviceName": {
+      "name": {
         "type": "string",
         "description": "Service name (without the word 'Service')",
         "required": true

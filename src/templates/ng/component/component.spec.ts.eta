@@ -1,6 +1,6 @@
 <%
-    const typeName = it.componentName + 'Component';
-    const fileName = it.toKebabCase(it.componentName) + '.component';
+    const typeName = it.name + 'Component';
+    const fileName = it.toKebabCase(it.name) + '.component';
 %>
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { <%= typeName %> } from './<%= fileName %>';
@@ -18,7 +18,7 @@ describe('<%= typeName %>', () => {
         fixture.detectChanges();
     });
 
-    it('should create', () => {
+    it('should be created', () => {
         expect(component).toBeTruthy();
     });
 });

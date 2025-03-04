@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { <%= it.serviceName %>Service } from './<%= it.toKebabCase(it.serviceName) %>.service';
+import { <%= it.name %>Service } from './<%= it.toKebabCase(it.name) %>.service';
 
-describe('<%= it.serviceName %>Service', () => {
-    let service: <%= it.serviceName %>Service;
+describe('<%= it.name %>Service', () => {
+    let service: <%= it.name %>Service;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(<%= it.serviceName %>Service);
+        service = TestBed.inject(<%= it.name %>Service);
     });
 
     it('should be created', () => {

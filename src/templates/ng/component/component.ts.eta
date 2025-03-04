@@ -1,6 +1,6 @@
 <%
-    const typeName = it.componentName + 'Component';
-    const componentName = it.toKebabCase(it.componentName);
+    const typeName = it.name + 'Component';
+    const componentName = it.toKebabCase(it.name);
 %>
 import { Component } from '@angular/core';
 
